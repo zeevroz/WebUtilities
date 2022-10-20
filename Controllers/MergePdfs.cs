@@ -24,7 +24,7 @@ namespace WebUtilities.Controllers
         public class InsertParams
         {
             public string file { get; set; }
-            public int after { get; set; }
+            public string after { get; set; }
         }
 
         [Serializable]
@@ -54,27 +54,51 @@ namespace WebUtilities.Controllers
             {
                 using (PdfDocument srcDoc = new PdfDocument(new PdfReader(json.src)))
                 {
-
                     int srcNumOfPages = srcDoc.GetNumberOfPages();
-                    foreach (var item in json.insert)
-                        if (item.after > srcNumOfPages) item.after = srcNumOfPages;
 
+                    #region Normalize "after"
+                    foreach (var item in json.insert)
+                    {
+                        if (int.TryParse(item.after, out int result))
+                        {
+                            if (result == 0) item.after = "start";
+                            else if (result > srcNumOfPages) item.after = "end";
+                        }
+                        else if (string.IsNullOrWhiteSpace(item.after))
+                        {
+                            item.after = "end";
+                        }
+                        else if (item.after == "start")
+                        {
+
+                        }
+                        else if (item.after == "end")
+                        {
+
+                        }
+                        else
+                        {
+                            item.after = "end";
+                        }
+                    }
+                    #endregion
+
+                    InsertParams[] items = Array.FindAll<InsertParams>(json.insert, v => v.after == "start");
+
+                    InsertItems(dstDoc, items);
 
                     for (int i = 1; i <= srcNumOfPages; i++)
                     {
                         srcDoc.CopyPagesTo(i, i, dstDoc);
 
-                        InsertParams[] items = Array.FindAll<InsertParams>(json.insert, v => v.after == i);
+                        items = Array.FindAll<InsertParams>(json.insert, v => v.after == i.ToString());
 
-                        if (items.Length == 0) continue;
-
-                        foreach (InsertParams item in items)
-                        {
-                            InsertDocument(dstDoc, item.file);
-                        }
-
+                        InsertItems(dstDoc, items);
                     }
 
+                    items = Array.FindAll<InsertParams>(json.insert, v => v.after == "end");
+
+                    InsertItems(dstDoc, items);
                 }
 
             }
@@ -84,6 +108,16 @@ namespace WebUtilities.Controllers
 
             return response;
         }
+
+        private void InsertItems(PdfDocument dst, InsertParams[] items)
+        {
+            if (items.Length > 0)
+                foreach (InsertParams item in items)
+                {
+                    InsertDocument(dst, item.file);
+                }
+        }
+
 
         private void InsertDocument(PdfDocument dst, string file)
         {
