@@ -4,9 +4,6 @@ using System;
 using System.Net.Http;
 using iText.Kernel.Pdf;
 
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace WebUtilities.Controllers
 {
     [Route("[controller]")]
@@ -18,22 +15,7 @@ namespace WebUtilities.Controllers
         public string Get()
         {
             return "Use Post method.";
-        }
-
-        [Serializable]
-        public class InsertParams
-        {
-            public string file { get; set; }
-            public string after { get; set; }
-        }
-
-        [Serializable]
-        public class MergeRequest
-        {
-            public string src { get; set; }
-            public InsertParams[] insert { get; set; }
-            public string dst { get; set; }
-        }
+        }       
 
         // POST api/<MergePdf>
         [HttpPost]
@@ -41,7 +23,7 @@ namespace WebUtilities.Controllers
         {
             HttpResponseMessage response = new HttpResponseMessage();
 
-            if (string.IsNullOrWhiteSpace(json.src) || string.IsNullOrWhiteSpace(json.dst) || json.insert.Length == 0)
+            if (string.IsNullOrWhiteSpace(json.src) || string.IsNullOrWhiteSpace(json.dst) || json.insert.Count == 0)
             {
                 response.StatusCode = System.Net.HttpStatusCode.BadRequest;
                 response.Content = new StringContent("StringContent");
@@ -83,22 +65,22 @@ namespace WebUtilities.Controllers
                     }
                     #endregion
 
-                    InsertParams[] items = Array.FindAll<InsertParams>(json.insert, v => v.after == "start");
+                    InsertParams[] items = Array.FindAll<InsertParams>(json.insert.ToArray(), v => v.after == "start");
 
-                    InsertItems(dstDoc, items);
+                    Library.InsertItems(dstDoc, items);
 
                     for (int i = 1; i <= srcNumOfPages; i++)
                     {
                         srcDoc.CopyPagesTo(i, i, dstDoc);
 
-                        items = Array.FindAll<InsertParams>(json.insert, v => v.after == i.ToString());
+                        items = Array.FindAll<InsertParams>(json.insert.ToArray(), v => v.after == i.ToString());
 
-                        InsertItems(dstDoc, items);
+                        Library.InsertItems(dstDoc, items);
                     }
 
-                    items = Array.FindAll<InsertParams>(json.insert, v => v.after == "end");
+                    items = Array.FindAll<InsertParams>(json.insert.ToArray(), v => v.after == "end");
 
-                    InsertItems(dstDoc, items);
+                    Library.InsertItems(dstDoc, items);
                 }
 
             }
@@ -107,29 +89,8 @@ namespace WebUtilities.Controllers
             response.Content = new StringContent("Success!");
 
             return response;
-        }
-
-        private void InsertItems(PdfDocument dst, InsertParams[] items)
-        {
-            if (items.Length > 0)
-                foreach (InsertParams item in items)
-                {
-                    InsertDocument(dst, item.file);
-                }
-        }
-
-
-        private void InsertDocument(PdfDocument dst, string file)
-        {
-            PdfDocument insertDoc = new PdfDocument(new PdfReader(file));
-
-            for (int j = 1; j <= insertDoc.GetNumberOfPages(); j++)
-            {
-                insertDoc.CopyPagesTo(j, j, dst);
-            }
-
-            insertDoc.Close();
-        }
+        }                
+        
 
         //// PUT api/<MergePdf>/5
         //[HttpPut("{id}")]

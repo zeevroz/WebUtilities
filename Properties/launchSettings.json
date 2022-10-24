@@ -11,7 +11,8 @@
   "profiles": {
     "IIS Express": {
       "commandName": "IISExpress",
-      "launchUrl": "MergePdfs",
+      "launchBrowser": true,
+      "launchUrl": "ReplacePages?file=C:\\tmp\\סקר מפגעים בסיסי-משרד-23.10.2022-קובי עטרי-19790.pdf",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
