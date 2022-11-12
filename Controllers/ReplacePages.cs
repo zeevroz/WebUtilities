@@ -1,9 +1,11 @@
-﻿using iText.Kernel.Pdf;
+﻿using iText.Forms.Xfdf;
+using iText.Kernel.Pdf;
 using iText.Kernel.Pdf.Canvas.Parser;
 using iText.Kernel.Pdf.Canvas.Parser.Listener;
 using iText.Layout;
 using iText.Layout.Element;
 using iText.Layout.Properties;
+using Microsoft.AspNetCore.Components.RenderTree;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.IO;
@@ -44,26 +46,26 @@ namespace WebUtilities.Controllers
                         continue;
                     }
 
-                    if (!text.StartsWith("#pdf#"))
-                    {
-                        continue;
-                    }
+                    //if (!text.StartsWith("~pdf~"))
+                    //{
+                    //    continue;
+                    //}
 
-                    int sidx = text.IndexOf("#pdf#");
+                    int sidx = text.IndexOf("pdf@");
 
                     if (sidx < 0)
                     {
                         continue;
                     }
 
-                    int eidx = text.IndexOf("#/pdf#");
+                    int eidx = text.IndexOf("#/pdf");
 
                     if (eidx < 0)
                     {
                         continue;
                     }
 
-                    string ifile = text.Substring(sidx + 5, eidx - sidx - 5);
+                    string ifile = text.Substring(sidx + 4, eidx - sidx - 4);
 
                     if (!System.IO.File.Exists(ifile))
                     {
@@ -79,7 +81,9 @@ namespace WebUtilities.Controllers
             if (Replace(result))
             {
                 System.IO.File.Delete(newSrc);
-
+                System.IO.File.Copy(file, newSrc);
+                EnumeratePages(newSrc, file);
+                System.IO.File.Delete(newSrc);
                 result.status = "Success";
             }
             else
@@ -103,28 +107,31 @@ namespace WebUtilities.Controllers
                 }
             }
 
-            //EnumeratePages(json.dst);
+            
 
             return true;
         }
 
-        private bool EnumeratePages(string file)
+        private bool EnumeratePages(string newSrc, string file)
         {
-            using (PdfDocument pdfDoc = new PdfDocument(new PdfReader(file), new PdfWriter(file)))//"c:\\tmp\\pnumbers.pdf"
+            using (PdfDocument pdfDoc = new PdfDocument(new PdfReader(newSrc), new PdfWriter(file)))//"c:\\tmp\\pnumbers.pdf"
             {
                 using (Document doc = new Document(pdfDoc))
                 {
+
                     int numberOfPages = pdfDoc.GetNumberOfPages();
 
                     for (int i = 1; i <= numberOfPages; i++)
                     {
-                        doc.ShowTextAligned(new Paragraph("דף " + i + " מתוך " + numberOfPages), 0, 0, i, TextAlignment.LEFT, VerticalAlignment.BOTTOM, 0);
+                        doc.ShowTextAligned(new Paragraph("page " + i + " of " + numberOfPages), 0, 0, i, TextAlignment.LEFT, VerticalAlignment.BOTTOM, 0);
                     }
                 }
             }
 
             return true;
         }
+
+
 
     }
 }
