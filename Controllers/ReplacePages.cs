@@ -1,14 +1,11 @@
-﻿using iText.Forms.Xfdf;
-using iText.Kernel.Pdf;
+﻿using iText.Kernel.Pdf;
 using iText.Kernel.Pdf.Canvas.Parser;
 using iText.Kernel.Pdf.Canvas.Parser.Listener;
 using iText.Layout;
 using iText.Layout.Element;
 using iText.Layout.Properties;
-using Microsoft.AspNetCore.Components.RenderTree;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.IO;
 
 namespace WebUtilities.Controllers
 {
@@ -20,16 +17,15 @@ namespace WebUtilities.Controllers
         [HttpGet]
         public MergeRequest Get([FromQuery] string file)
         {
-            string newSrc = Path.Combine(Path.GetDirectoryName(file), Path.GetFileNameWithoutExtension(file) + "_Copy" + Path.GetExtension(file));
-
-            if (System.IO.File.Exists(newSrc))
-            {
-                System.IO.File.Delete(newSrc);
-            }
-
-            System.IO.File.Copy(file, newSrc);
+            string newSrc = Library.SwapSource(file);
 
             MergeRequest result = new MergeRequest(newSrc, file);
+
+            if (string.IsNullOrWhiteSpace(newSrc))
+            {
+                result.status = "Error";
+                return result;
+            }
 
             using (PdfDocument srcDoc = new PdfDocument(new PdfReader(newSrc)))
             {

@@ -1,4 +1,5 @@
 ﻿using iText.Kernel.Pdf;
+using System.IO;
 
 namespace WebUtilities
 {
@@ -30,6 +31,25 @@ namespace WebUtilities
             }
 
             insertDoc.Close();
+        }
+
+        public static string SwapSource(string file)
+        {
+            if (!System.IO.File.Exists(file))
+            {
+                return string.Empty;
+            }
+
+            string copy = Path.Combine(Path.GetDirectoryName(file), Path.GetFileNameWithoutExtension(file) + "_Copy" + Path.GetExtension(file));
+
+            if (System.IO.File.Exists(copy))
+            {
+                System.IO.File.Delete(copy);
+            }
+
+            System.IO.File.Copy(file, copy);
+        
+            return copy;
         }
 
     }

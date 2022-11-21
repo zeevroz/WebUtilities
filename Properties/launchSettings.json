@@ -12,7 +12,7 @@
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
-      "launchUrl": "ReplacePages?file=C:\\tmp\\סקר מפגעים בסיסי-משרד-23.10.2022-קובי עטרי-19790.pdf",
+      "launchUrl": "TocChaptersList",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
