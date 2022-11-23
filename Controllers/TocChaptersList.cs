@@ -36,7 +36,8 @@ namespace WebUtilities.Controllers
                 return response;
             }
 
-            string src = Library.SwapSource(json.File);
+            //string src = Library.SwapSource(json.File);
+            string src = json.File;
 
             if (string.IsNullOrWhiteSpace(src))
             {
@@ -83,14 +84,14 @@ namespace WebUtilities.Controllers
                 return response;
             }
 
-            using (PdfDocument dstDoc = new PdfDocument(new PdfWriter(json.File)))
-            {
-                Library.InsertDocument(dstDoc, toc);
-                Library.InsertDocument(dstDoc, src);
-            }
+            //using (PdfDocument dstDoc = new PdfDocument(new PdfWriter(json.File)))
+            //{
+            //    Library.InsertDocument(dstDoc, toc);
+            //    Library.InsertDocument(dstDoc, src);
+            //}
 
-            System.IO.File.Delete(toc);
-            System.IO.File.Delete(src);
+            //System.IO.File.Delete(toc);
+            //System.IO.File.Delete(src);
 
             response.StatusCode = System.Net.HttpStatusCode.OK;
             response.Content = new StringContent("Success!");

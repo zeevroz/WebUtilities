@@ -13,7 +13,8 @@ namespace WebUtilities
         {
             Document document = new Document(PageSize.A4);
 
-            string file = Path.Combine(Directory.GetCurrentDirectory(), "Tmp", "toc" + DateTime.Now.ToString("yyyyMMHHmmss") + ".pdf");
+            //string file = Path.Combine(Directory.GetCurrentDirectory(), "Tmp", "toc" + DateTime.Now.ToString("yyyyMMHHmmss") + ".pdf");
+            string file = Path.Combine(Path.GetDirectoryName(json.File), Path.GetFileNameWithoutExtension(json.File) + "_fs" + Path.GetExtension(json.File));
             PdfWriter writer = PdfWriter.GetInstance(document, new FileStream(file, FileMode.CreateNew));
 
             document.Open();
